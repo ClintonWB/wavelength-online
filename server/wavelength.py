@@ -10,9 +10,12 @@ import json
 HOST = os.getenv('HOST', '0.0.0.0')
 PORT = int(os.getenv('PORT', 8080))
 
-games = []
+game_max = 9999
+game_rotator = 1234
+games_started = 0
+games = {}
 
-async def testhandle(request):
+async def index_page(request):
     return aiohttp.web.FileResponse("../client/index.html")
 
 async def websocket_handler(request):
@@ -37,7 +40,7 @@ async def websocket_handler(request):
                 else:
                     await ws.send_str("Unable to find function {}".format(msg_json['action']))
                 
-
+    await leave_game(ws)
     print('Websocket connection closed')
     return ws
 
@@ -51,25 +54,29 @@ def register_player_function(func):
 
 @register_player_function
 async def create_game(ws,username,**kwargs):
-    game_id = len(games)
-    games.append({'players':{},
+    
+    global games_started
+    game_id = (game_rotator*games_started)%game_max
+    games_started += 1
+    games[game_id] = {'players':{},
                   'spinner_target':50,
                   'flipped':0,
                   'pointer':50,
-        })
+                  'scores':[0,0],
+                  'side':'left',
+        }
     print("Created Game {}".format(game_id))
     
     await join_game(ws,username,game_id)
     
     await draw_card(ws)
-    await spin_spinner(ws)
     await point_pointer(ws, pointer_target=50)
     
     return True
 
 @register_player_function
 async def join_game(ws,username,game_id,**kwargs):
-    if(game_id >= len(games)):
+    if(game_id not in games):
         return False
     
     game = games[game_id]
@@ -86,17 +93,39 @@ async def join_game(ws,username,game_id,**kwargs):
     game['players'][username]['socket'] = ws
     
     player_list = list(game['players'].keys())
-    msg = {'action':'player_change',
+    msg = {'action':'player_list',
            'performer':username,
-           'data':{'player_list':player_list,
-                    'game_id':game_id,
-                    'card':game.get('card',["A\tB"]),
-                    'flipped':game.get('flipped',0),
-                    'pointer':game['pointer']}}
-    asyncio.create_task(json_blast(game_id,msg))
+           'player_list':player_list
+           }
+    asyncio.create_task(json_blast_others(ws,msg))
+    private_msg = {'action':'join_game',
+           'performer':username,
+           'player_list':player_list,
+           'game_id':game_id,
+           'card':game.get('card',["A\tB"]),
+           'flipped':game.get('flipped',0),
+           'scores':game.get('scores',[0,0]),
+           'side':game.get('side','left'),
+           'pointer':game.get('pointer',50)}
+    asyncio.create_task(send_json(ws,private_msg))
     
     return True
+
+async def leave_game(ws,**kwargs):
+    game = games[ws.game_id]
+    if(len(game['players']) == 1):
+        del game['players']
+        return True
+    del game['players'][ws.username]
     
+    player_list = list(game['players'].keys())
+    msg = {'action':'player_list',
+           'performer':ws.username,
+           'player_list':player_list
+           }
+    asyncio.create_task(json_blast_others(ws,msg))
+    
+    return True    
 @register_player_function
 async def spin_spinner(ws):
     game_id = ws.game_id
@@ -104,13 +133,13 @@ async def spin_spinner(ws):
     games[game_id]['spinner_target'] = spinner_target
     msg = {'action':'spin_spinner',
            'performer':ws.username}
-    asyncio.create_task(json_blast(game_id,msg))
+    asyncio.create_task(json_blast_others(ws,msg))
     
     private_msg = {'action':'spinner_secret',
                 'performer':ws.username,
                 'spinner_target':spinner_target,
                 }
-    asyncio.create_task(ws.send_str(json.dumps(private_msg)))
+    asyncio.create_task(send_json(ws,private_msg))
     return True
     
 @register_player_function
@@ -120,7 +149,7 @@ async def reveal_spinner(ws):
     msg = {'action':'reveal_spinner',
            'spinner_target':spinner_target,
            'performer':ws.username}
-    asyncio.create_task(json_blast(game_id,msg))
+    asyncio.create_task(json_blast(ws,msg))
     return True
     
 @register_player_function
@@ -134,7 +163,7 @@ async def draw_card(ws):
     msg = {'action':'draw_card',
            'card':new_card,
            'performer':ws.username}
-    asyncio.create_task(json_blast(game_id,msg))
+    asyncio.create_task(json_blast(ws,msg))
     return True
     
 @register_player_function
@@ -145,7 +174,7 @@ async def flip_card(ws):
            'performer':ws.username,
            'side':new_side}
     games[game_id]['flipped']=new_side
-    asyncio.create_task(json_blast(game_id,msg))
+    asyncio.create_task(json_blast(ws,msg))
     return True
     
 @register_player_function
@@ -155,19 +184,52 @@ async def point_pointer(ws, pointer_target):
     msg = {'action':'point_pointer',
            'pointer_target':pointer_target,
            'performer':ws.username}
-    asyncio.create_task(json_blast(game_id,msg))
+    asyncio.create_task(json_blast(ws,msg))
+    return True
+    
+@register_player_function
+async def set_scores(ws, scores):
+    game_id = ws.game_id
+    games[game_id]['scores'] = scores
+    msg = {'action':'set_scores',
+           'scores':scores,
+           'performer':ws.username}
+    asyncio.create_task(json_blast(ws,msg))
     return True
 
-async def json_blast(game_id,msg):
+@register_player_function    
+async def set_side(ws, side):
+    game_id = ws.game_id
+    games[game_id]['side'] = side
+    msg = {'action':'set_side',
+           'side':side,
+           'performer':ws.username}
+    asyncio.create_task(json_blast(ws,msg))
+    return True
+
+async def json_blast(ws,msg):
+    game_id = ws.game_id
     msg_str = json.dumps(msg)
-    print("Blasting message: {}".format(msg_str))
     for player in games[game_id]['players'].values():
         asyncio.create_task(player['socket'].send_str(msg_str))
     return True
+    
+async def json_blast_others(ws,msg):
+    msg_str = json.dumps(msg)
+    player_dict = games[ws.game_id]['players']
+    for name in player_dict:
+        if name != ws.username:
+            asyncio.create_task(player_dict[name]['socket'].send_str(msg_str))
+    return True
+
+async def send_json(ws,msg):
+    msg_str = json.dumps(msg)
+    asyncio.create_task(ws.send_str(msg_str))
+
 
 loop = asyncio.get_event_loop()
 app = aiohttp.web.Application(loop=loop)
-app.router.add_route('GET', '/', testhandle)
+app.router.add_route('GET', '/', index_page)
 app.router.add_route('GET', '/ws', websocket_handler)
 
 

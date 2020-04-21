@@ -24,7 +24,7 @@
  <g id="box_layer" opacity=".99">
   <rect x="6.9495" y="271.1" width="988.37" height="902.01" fill="#086688" opacity="1" stroke="#014661" stroke-linecap="round" stroke-linejoin="round" stroke-width="7.1839"/>
   <g stroke="#000000">
-   <g id="left_scores" class="scores; peg_hole_set">
+   <g id="left_scores" class="scores peg_hole_set" style="cursor:pointer">
     <use id="left_score_9" transform="translate(-23.423 159.05)" width="100%" height="100%" xlink:href="#path5092"/>
     <use id="left_score_8" transform="translate(-23.423 188.11)" width="100%" height="100%" xlink:href="#path5092"/>
     <use id="left_score_7" transform="translate(-23.423 217.16)" width="100%" height="100%" xlink:href="#path5092"/>
@@ -37,7 +37,7 @@
     <use id="left_score_0" transform="translate(-23.423 420.53)" width="100%" height="100%" xlink:href="#path5092"/>
     <use id="left_score_10" transform="translate(-23.577 130)" width="100%" height="100%" xlink:href="#path5092"/>
    </g>
-   <g id="right_scores" class="scores; peg_hole_set">
+   <g id="right_scores" class="scores peg_hole_set" style="cursor:pointer">
     <use id="right_score_10" transform="translate(816.58 130)" width="100%" height="100%" xlink:href="#path5092"/>
     <use id="right_score_9" transform="translate(816.58 159.05)" width="100%" height="100%" xlink:href="#path5092"/>
     <use id="right_score_8" transform="translate(816.58 188.11)" width="100%" height="100%" xlink:href="#path5092"/>
@@ -50,18 +50,18 @@
     <use id="right_score_1" transform="translate(816.58 391.48)" width="100%" height="100%" xlink:href="#path5092"/>
     <use id="right_score_0" transform="translate(816.58 420.53)" width="100%" height="100%" xlink:href="#path5092"/>
    </g>
-   <g id="direction_guess" class="peg_hole_set">
-    <use id="left_score_9-4" transform="translate(210 197.25)" width="100%" height="100%" xlink:href="#path5092"/>
-    <use id="left_score_9-6" transform="translate(580 197.25)" width="100%" height="100%" xlink:href="#path5092"/>
+   <g id="direction_guess" class="peg_hole_set" style="cursor:pointer">
+    <use id="guess_left" transform="translate(210 197.25)" width="100%" height="100%" xlink:href="#path5092"/>
+    <use id="guess_right" transform="translate(580 197.25)" width="100%" height="100%" xlink:href="#path5092"/>
    </g>
   </g>
   <text x="675.54022" y="899.02899" fill="#000000" font-family="sans-serif" font-size="12px" letter-spacing="0px" word-spacing="0px" style="line-height:1.25" xml:space="preserve"><tspan x="675.54022" y="899.02899" font-family="'Times New Roman'" font-size="28px">R</tspan></text>
   <text x="306.7092" y="899.02899" fill="#000000" font-family="'Times New Roman'" font-size="28px" letter-spacing="0px" word-spacing="0px" style="line-height:1.25" xml:space="preserve"><tspan x="306.7092" y="899.02899">L</tspan><tspan x="306.7092" y="920.1236"/></text>
  </g>
- <g id="wheel_layer">
+ <g id="wheel_layer" style="cursor:pointer">
   <path d="m796.73 689.54c-6.5558 10.342-5.6721 15.18-4.3313 20.138 1.265 4.6774 2.9256 9.275-3.4358 17.152-6.3524 7.8655-11.187 7.2161-15.998 6.9813-5.0946-0.24865-10.001-0.0695-18.569 8.5216-8.5672 8.59-8.7318 13.497-8.467 18.58 0.25071 4.8113 0.91266 9.6083-6.8816 15.972-7.7943 6.3641-12.361 4.7557-17.03 3.5487-4.9168-1.271-9.7955-2.0997-19.925 4.63-10.138 6.735-11.265 11.563-11.99 16.604-0.68933 4.7905-0.96057 9.6248-9.845 14.403-8.8882 4.7806-13.071 2.3392-17.459 0.2657-4.6041-2.1758-9.2886-3.92-20.55 0.85902-11.268 4.7822-13.27 9.3706-14.901 14.21-1.5542 4.612-2.6949 9.3276-12.326 12.445-9.6333 3.1181-13.321-0.0362-17.287-2.8678-4.1567-2.9676-8.48-5.5257-20.442-2.7912-11.963 2.7346-14.745 6.9174-17.2 11.397-2.342 4.2743-4.2924 8.7181-14.325 10.097-10.03 1.3787-13.108-2.3728-16.513-5.8518-3.5725-3.6496-7.3718-6.9136-19.603-6.3206-12.224 0.59266-15.685 4.203-18.886 8.166-3.0504 3.7774-5.7553 7.7962-15.841 7.3595-10.082-0.43655-12.43-4.6715-15.138-8.6862-2.8481-4.2233-5.9674-8.0824-18.032-9.7293-12.055-1.6455-16.088 1.2294-19.959 4.5167-3.6776 3.1228-7.0853 6.5606-16.875 4.2325-9.7895-2.328-11.286-6.9321-13.161-11.371-1.9794-4.6876-4.271-9.0332-15.73-13.017-11.459-3.984-15.951-1.9995-20.421 0.44909-4.223 2.3134-8.2832 5.0083-17.427 0.71593-9.1558-4.2978-9.6732-9.1523-10.582-13.906-0.96298-5.0379-2.2859-9.7704-12.695-16.184-1.7032-1.0495-3.2514-1.9037-4.6853-2.5939-8.0691-3.8364-12.268-2.3492-16.703-1.0654-4.2536 1.2312-8.7159 2.2423-16.059-3.486-7.9797-6.2247-7.4109-11.076-7.2567-15.892 0.16341-5.1028-0.0983-10.004-8.8317-18.432-8.7312-8.4254-13.638-8.511-18.717-8.1649-4.8063 0.32752-9.5937 1.0654-16.079-6.6289-6.4848-7.6938-4.9469-12.285-3.8124-16.97 1.1952-4.9357 1.9481-9.8225-4.9306-19.845-6.884-10.031-11.724-11.085-16.774-11.736-4.7978-0.61834-9.6349-0.81878-14.54-9.6301-4.9076-8.815-2.5271-13.032-0.51763-17.447 2.109-4.6334 3.785-9.3393-1.1502-20.527-4.9387-11.196-9.5518-13.132-14.412-14.695-4.6318-1.4892-9.3622-2.564-12.613-12.149-3.2512-9.5875-0.14853-13.318 2.6276-17.322 2.9095-4.1966 5.4076-8.5543 2.5094-20.477-2.8985-11.924-7.1191-14.649-11.632-17.042-4.3065-2.2831-8.7771-4.1721-10.295-14.186-1.5178-10.012 2.191-13.141 5.6233-16.596 3.6001-3.6233 6.8127-7.4694 6.0483-19.695-0.76399-12.219-4.4252-15.631-8.4343-18.776-3.822-2.9978-7.8798-5.6454-7.5881-15.74 0.29154-10.09 4.4927-12.5 8.4694-15.267 4.1823-2.9101 7.9987-6.0881 9.4665-18.182 1.4665-12.084-1.4717-16.076-4.8178-19.897-3.1797-3.6314-6.6688-6.9858-4.4916-16.812 2.1769-9.8247 6.7564-11.393 11.166-13.337 4.6552-2.0528 8.9665-4.4144 12.764-15.936 3.797-11.521 1.7373-15.981-0.78303-20.407-2.3823-4.1831-5.1414-8.1941-1.0056-17.401 4.1405-9.2178 8.9798-9.8166 13.713-10.806 5.0147-1.048 9.7201-2.4519 15.941-12.959 2.3798-4.02 3.704-7.1741 4.345-9.8969 1.3343-5.7619-0.45787-9.2091-1.502-13.102-1.0128-3.7763-1.2774-8.0231 3.6661-14.587 6.0949-8.0933 10.961-7.606 15.782-7.533 5.1101 0.0774 10.006-0.26747 18.29-9.1426 8.281-8.8717 8.287-13.778 7.8591-18.852-0.40479-4.8004-1.219-9.5771 6.3733-16.183 7.5912-6.6049 12.207-5.1384 16.908-4.0769 4.9537 1.1186 9.8476 1.7952 19.761-5.232 9.9207-7.0323 10.903-11.883 11.478-16.941 0.54689-4.8041 0.67614-9.643 9.4123-14.675 8.7398-5.0342 12.991-2.7152 17.432-0.77046 4.662 2.0415 9.3881 3.6487 20.5-1.4422 11.12-5.0946 12.991-9.7314 14.485-14.613 1.4237-4.6505 2.4322-9.3948 11.969-12.778 9.5395-3.3838 13.312-0.33353 17.354 2.3865 4.2358 2.8508 8.6267 5.2883 20.507 2.2269 11.882-3.0618 14.549-7.3192 16.88-11.865 2.2237-4.3378 4.051-8.8342 14.043-10.491 9.9912-1.6564 13.172 2.009 16.674 5.3939 3.6732 3.5499 7.5652 6.7105 19.783 5.7753 12.211-0.93472 15.573-4.6457 18.662-8.7001 2.9446-3.8658 5.5348-7.9614 15.635-7.8144 10.096 0.14699 12.567 4.3137 15.393 8.2517 2.9711 4.1406 6.207 7.9137 18.327 9.2029 12.11 1.2881 16.06-1.7125 19.831-5.1164 3.5847-3.2357 6.8856-6.7751 16.745-4.7484 9.8579 2.0264 11.497 6.5804 13.51 10.96 2.1253 4.6222 4.556 8.8984 16.139 12.51 11.58 3.6106 16.008 1.4767 20.389-1.1144 4.1428-2.4504 8.1042-5.2727 17.373-1.2929 9.2776 3.9837 9.9571 8.8071 11.026 13.519 1.1322 4.9908 2.6161 9.6686 13.219 15.696 7.6627 4.3558 12.249 5.0015 16.19 4.3807 3.4155-0.54201 6.1153-2.0333 9.3138-2.4842 3.1669-0.44646 6.941 0.14211 12.2 3.9635 8.2064 5.963 7.8014 10.844 7.8102 15.669 9e-3 5.1165 0.43783 10.006 9.4542 18.144 9.0115 8.1338 13.916 8.0597 18.984 7.5496 4.7936-0.48253 9.5586-1.3734 16.285 6.1147 6.7246 7.4864 5.3302 12.126 4.3424 16.841-1.0414 4.9708-1.641 9.8709 5.5342 19.672 7.1801 9.8081 12.041 10.717 17.106 11.217 4.8095 0.47499 9.6492 0.53264 14.807 9.1915 5.1602 8.6623 2.9036 12.946 1.0242 17.412-1.9733 4.6897-3.5111 9.435 1.7349 20.469 5.2499 11.042 9.9095 12.846 14.81 14.272 4.6683 1.3577 9.4256 2.2995 12.941 11.786 3.516 9.4894 0.51878 13.304-2.1444 17.382-2.7913 4.2741-5.1676 8.6972-1.9437 20.533 3.2245 11.838 7.5177 14.446 12.096 16.714 4.368 2.1638 8.8894 3.929 10.684 13.898 1.7945 9.9683-1.8268 13.2-5.1636 16.749-3.499 3.7223-6.6069 7.6592-5.5015 19.866 1.1049 12.201 4.8647 15.513 8.9633 18.544 3.9085 2.891 8.0411 5.4233 8.0382 15.528-3e-3 10.101-4.1344 12.632-8.0331 15.515-4.0982 3.0313-7.8273 6.3241-8.9386 18.467-1.1104 12.133 1.9517 16.042 5.4124 19.762 3.2908 3.5374 6.8795 6.7844 5.0028 16.676-1.8763 9.889-6.4041 11.597-10.753 13.68-4.5884 2.1969-8.8291 4.6959-12.255 16.337-3.4248 11.637-1.2176 16.032 1.4432 20.367 2.5174 4.102 5.402 8.0134 1.5778 17.341-3.8274 9.3354-8.6341 10.095-13.324 11.242-4.9661 1.2154-9.6159 2.7785-15.451 13.474" fill="#e5e1d6"/>
- <animateTransform attributeName="transform" attributeType="XML" type="rotate" values="0 500 500; 180 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="1s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_wheel"/></g>
- <g id="spinner_layer">
+ <animateTransform attributeName="transform" attributeType="XML" type="rotate" values="0 500 500; 180 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="1s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_wheel"/><title>Spin Wheel</title></g>
+ <g id="spinner_layer" style="cursor:pointer">
   <path transform="rotate(-90)" d="m-193.33 397.39a323.38 323.38 0 0 1 0 205.22l-306.67-102.61z" fill="#e5c726"/>
   <path transform="rotate(-90)" d="m-183.11 435.53a323.38 323.38 0 0 1 0 128.94l-316.89-64.471z" fill="#f1680e"/>
   <path transform="rotate(-90)" d="m-177.22 480.26a323.38 323.38 0 0 1 0 39.484l-322.78-19.742z" fill="#46bdd4"/>
@@ -73,20 +73,20 @@
   <path d="m500 162.35a337.64 337.64 0 0 0-337.64 337.64 337.64 337.64 0 0 0 337.64 337.64 337.64 337.64 0 0 0 337.64-337.64 337.64 337.64 0 0 0-337.64-337.64zm0 26.378c161.23-1e-4 296.03 123.52 310.09 284.14a17.965 17.965 0 0 1-35.793 3.1289c-0.56322-6.4347-1.4092-12.777-2.3994-19.068l-271.89 43.061-271.89-43.061c-0.99039 6.292-1.8503 12.633-2.4134 19.068a17.963 17.963 0 1 1-35.779-3.1289c14.052-160.62 148.85-284.14 310.09-284.14z"/>
   <rect x="297.74" y="729.85" width="406.56" height="135.68" ry="5.2184"/>
  </g>
- <g id="pointer_layer" fill="#e70000">
+ <g id="pointer_layer" fill="#e70000" style="cursor:grab">
   <circle cx="500" cy="500" r="65.24"/>
   <rect x="494.84" y="272.41" width="10.318" height="179.34" ry="5.5259"/>
- <animateTransform attributeName="transform" attributeType="XML" type="rotate" values="175 500 500; 5 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="0.5s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_pointer_move" class="animate_move"/></g>
- <g id="wiper_handle_layer" class="wiper_parts">
+ <animateTransform attributeName="transform" attributeType="XML" type="rotate" values="175 500 500; 5 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="0.5s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_pointer_move" class="animate_move"/><title>Move Pointer</title></g>
+ <g id="wiper_handle_layer" class="wiper_parts" style="cursor:pointer">
   <path d="m212.64 500h-186.26" fill="none" stroke="url(#radialGradient895)" stroke-linecap="round" stroke-linejoin="round" stroke-width="35.92"/>
- <animateTransform attributeName="transform" attributeType="XML" type="rotate" values="175 500 500; 5 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="1s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_wiper_back_open" class="animate_wiper_open"/><animateTransform attributeName="transform" attributeType="XML" type="rotate" values="5 500 500; 175 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="1s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_wiper_back_close" class="animate_wiper_close"/></g>
- <g id="card_layer" opacity=".98">
+ <animateTransform attributeName="transform" attributeType="XML" type="rotate" values="175 500 500; 5 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="1s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_wiper_back_open" class="animate_wiper_open"/><animateTransform attributeName="transform" attributeType="XML" type="rotate" values="5 500 500; 175 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="1s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_wiper_back_close" class="animate_wiper_close"/><title>Flip Shutter</title></g>
+ <g id="card_layer" opacity=".98" style="cursor:pointer">
   <g id="display_card" opacity="1">
    <rect id="left_card_back" x="375.24" y="754.76" width="125" height="160" fill="#7676cf" opacity="1"/>
    <rect id="right_card_back" x="500.24" y="754.76" width="125" height="160" fill="#cd7070" opacity="1"/>
   </g>
  </g>
- <g id="deck_layer">
+ <g id="deck_layer" style="cursor:pointer">
   <rect id="left_card_back-0" x="375.24" y="944.76" width="125" height="160"/>
   <use width="100%" height="100%" fill="#ef8d8d" stroke="#ef8d8d" xlink:href="#left_card_back-0"/>
   <use transform="translate(0,8)" width="100%" height="100%" fill="#e7ef8d" stroke="#e7ef8d" xlink:href="#left_card_back-0"/>
