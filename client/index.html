@@ -1,0 +1,441 @@
+<!doctype HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>Wavelength Online</title>
+    <meta name="description" content="Wavelength Online">
+    <meta name="author" content="Clinton Bradford">
+    <script
+    src="https://code.jquery.com/jquery-3.5.0.min.js"
+    integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+    crossorigin="anonymous"></script>
+    <style>
+    .inactive{
+        display:none;
+    }
+    .card_text{
+        position: absolute;
+        text-align: center;
+        pointer-events:none;
+        word-break: break-word;
+    }
+
+    </style>
+    <script type="text/javascript">
+        (function ($) {
+            $.fn.serializeFormJSON = function () {
+
+                var o = {};
+                var a = this.serializeArray();
+                $.each(a, function () {
+                    if (o[this.name]) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        o[this.name].push(this.value || '');
+                    } else {
+                        o[this.name] = this.value || '';
+                    }
+                });
+                return o;
+            };
+        })(jQuery);
+    
+    game_data = {};
+    
+    function update_card_text(){
+        if(game_data.card === undefined){
+            return false;
+        }
+        card = game_data.card[game_data.card_side];
+        var [left_text,right_text] = card.split('\t');
+        $("#card_text_left").html(left_text);
+        $("#card_text_right").html(right_text);
+    }
+
+    function receive_message(event){
+        try{
+            json = JSON.parse(event.data)
+        } catch(err){
+            console.log('Non-JSON message from server ', event.data);
+            return true;
+        }
+        if(json.action !== undefined){
+            var $log_entry = $("<li>");
+            $log_entry.html(json.performer+" Performs "+json.action); 
+            $("#log").append($log_entry);
+            switch(json.action){
+                case "player_change":
+                    $("#player_list").empty()
+                    $("#player_list").append($(json.data.player_list).map(function(number,content){return $("<ul>"+content+"</ul>")[0]}));
+                    if(json.performer === username){
+                        wavelength_display.wiper_position = 1;
+                        game_data.game_id = json.data.game_id;
+                        $("#game_id").html(game_data.game_id);
+                        game_data.card = json.data.card;
+                        game_data.card_side = json.data.flipped;
+                        update_card_text();
+                        $(window).on("resize",wavelength_display.place_card_text.bind(wavelength_display));
+                        $("#pointer").val(json.data.pointer);
+                        $("#pointer-display").html(json.data.pointer);
+                    }
+                    break;
+                case "spin_spinner":
+                    if(json.performer !== username){
+                        wavelength_display.wiper_position = 1;
+                    }
+                    break;
+                case "reveal_spinner":
+                case "spinner_secret":
+                    wavelength_display.wiper_position = 0;
+                    wavelength_display.spinner = json.spinner_target;
+                    break;
+                case "point_pointer":
+                    if(json.performer !== username){
+                        wavelength_display.pointer=json.pointer_target;
+                    }
+                    break;
+                case "draw_card":
+                    game_data.card = json.card;
+                    game_data.card_side = 0;
+                    update_card_text();
+                    break;
+                case "flip_card":
+                    game_data.card_side = 1-game_data.card_side;
+                    update_card_text();
+                    break;
+                default:
+                    console.log("Unhandled Action: "+json.action);
+            }
+            return true;
+        }
+    }
+
+    function exit_lobby(){
+        $("#game").removeClass("inactive");
+        $("#lobby").addClass("inactive");
+        $("#lobby").hide();
+    }
+
+    function enter_lobby(event){
+        clearTimeout(exit_soon);
+        $("#game").addClass("inactive");
+        $("#lobby").show()
+        $("#lobby").removeClass("inactive");
+        delete window.ws;
+    }
+
+    var exit_soon;
+    function initialize_websocket(msg){
+        window.ws = new WebSocket('ws://localhost:8080/ws');
+        ws.addEventListener('message', receive_message);
+        ws.addEventListener('close',enter_lobby);
+        if(ws.readyState === WebSocket.OPEN){
+            ws.send(msg);
+            exit_soon = setTimeout(exit_lobby,100);
+        } else {
+            ws.addEventListener('open',function(){ws.send(msg);exit_soon = setTimeout(exit_lobby,100);},once=true);
+        }
+        return ws;
+    }
+
+    function create_game(){
+        parameters = $("#create_game_form").serializeFormJSON()
+        parameters.username = parameters.username.trim()
+        if(parameters.username === ""){
+            $("#create_game_warnings").html("You must put a username.")            
+            return false;
+        }
+        window.username = parameters.username;
+//        if (!parameters.end_condition_number.match(/^[1-9]\d*$/)){
+//            $("#create_game_warnings").html("The game end must be a positive integer.")            
+//            return false;          
+//        }
+//        parameters.end_condition_number = parseInt(parameters.end_condition_number)
+        
+        request_json = {'action':'create_game',
+                        'args':parameters};
+        request_str = JSON.stringify(request_json);
+        initialize_websocket(request_str);
+        return true;
+    }
+
+    function join_game(){
+        parameters = $("#join_game_form").serializeFormJSON();
+        parameters.username = parameters.username.trim();
+        if(parameters.username === ""){
+            $("#join_game_warnings").html("You must put a username.")            
+            return false;
+        }
+        window.username = parameters.username;
+        parameters.game_id = parameters.game_id.trim()
+        if(parameters.game_id === ""){
+            $("#join_game_warnings").html("You must put a Game ID.")            
+            return false;
+        }
+        parameters.game_id = parseInt(parameters.game_id)
+
+        request_json = {'action':'join_game',
+                        'args':parameters};
+        request_str = JSON.stringify(request_json);
+        initialize_websocket(request_str);
+        return true;
+    }
+
+    function perform_action(action){
+        msg = {'action':action};
+        ws.send(JSON.stringify(msg));
+    }
+
+    function update_pointer(){
+        msg = {'action':'point_pointer',
+                'args':{'pointer_target':wavelength_display.pointer}}
+        ws.send(JSON.stringify(msg));
+    }
+
+    class WavelengthDisplay {
+      constructor(selector) {
+        this.selector = selector;
+        this._wiper_position = 1;
+        this._pointer_angle = 0;
+        this._spinner_angle = 0;
+        this.initialized = false;
+        function tellmeready(){
+            console.log("Object:")
+            console.log($(selector)[0]);
+        }
+        $(function(){$(selector).on("load",tellmeready)});
+        $(function(){
+            $(selector).on("load",this.initialize_svg.bind(this))}.bind(this));
+      };
+
+      initialize_svg(){
+        this.initialized = true;
+        this.svg = $($(this.selector)[0].getSVGDocument()).find("svg");
+        this.pointer_angle = this.pointer_angle;
+        this.spinner_angle = this.spinner_angle;
+        this.wiper_position = 1-this.wiper_position;
+        this.wiper_position = 1-this.wiper_position;
+        this.place_card_text();
+        this.svg.find("#wiper_handle_layer").on("click",function(){this.swap_wiper();this.query_reveal()}.bind(this));
+        this.svg.find("#wiper_handle_layer").css("cursor","grab");
+        this.svg.find("#wheel_layer").on("click",function(){this.svg.find("#animate_wheel")[0].beginElement();perform_action('spin_spinner')}.bind(this));
+        this.svg.find("#deck_layer").on("click",function(){perform_action('draw_card')}.bind(this));
+        this.svg.find("#card_layer").on("click",function(){perform_action('flip_card')}.bind(this));
+        this.svg.find("#pointer_layer").on("mousedown",this.evt_pointer_click.bind(this));
+        this.svg.find("#pointer_layer").css("cursor","grab");
+        this.svg.on("mouseup",this.evt_pointer_unclick.bind(this));
+        this.svg.on("mouseleave",this.evt_pointer_unclick.bind(this));
+        this.svg.on("mousemove",this.evt_pointer_move.bind(this));
+        this.svg.find(".peg_hole_set").children()
+                                    .on("click",function(event){
+                                        $(event.target)
+                                            .siblings()
+                                            .attr("stroke","black");
+                                        $(event.target).attr("stroke","orange");
+                                        });
+      }
+
+    place_card_text(){
+        if(this.initialized){
+            var svg_offset = $("#wavelength_spinner").offset();
+            var card_box = this.svg.find("#card_layer")[0].getClientRects()[0];
+            if(card_box == undefined || card_box.length === 0){
+                setTimeout(this.place_card_text.bind(this),100);
+                return true;
+            }
+            var left = svg_offset.left + card_box.left;
+            var width = card_box.width/2;
+            var top = svg_offset.top + card_box.top;
+            var height= card_box.height;
+            $(".card_text").height(height).width(width);
+            $("#card_text_left").offset({top:top+height/4, left:left});
+            $("#card_text_right").offset({top:top+height/4, left:left+width});
+            return true;
+        }
+        return true;
+    }
+
+
+      mouse_angle(evt){
+        var rect = this.svg[0].getClientRects()[0];
+        var center_x = (500/this.svg.attr("width"))*rect.width+rect.x;
+        var center_y = (500/this.svg.attr("height"))*rect.height+rect.y;
+        return Math.atan2(evt.clientX-center_x,-evt.clientY+center_y)/Math.PI*180;
+      }
+
+      evt_pointer_click(evt){
+        this.dragging = true;
+        this.svg.css("cursor","grabbing");
+        this.svg.find("#pointer_layer").css("cursor","grabbing");
+        this.dragging_what = "pointer";
+      }
+      evt_pointer_unclick(evt){
+        if(this.dragging && this.dragging_what === "pointer"){
+          this.svg.find("#pointer_layer").css("cursor","grab");
+          update_pointer();
+        }
+        this.dragging = false;
+        this.svg.css("cursor","");
+      }
+      evt_pointer_move(evt){
+        if(this.dragging){
+          var angle = this.mouse_angle(evt);
+          if(angle < -80){angle = -80}
+          else if(angle > 80){angle = 80};
+          if(this.dragging_what === "pointer"){
+            this.pointer_angle = angle;
+          }
+        }
+      }
+
+
+      swap_wiper(){
+          this.wiper_position = 1-this.wiper_position;
+      }
+
+      get wiper_position(){
+          return this._wiper_position;
+      }
+
+      set wiper_position(val){
+        if(this._wiper_position === val){
+          return true;
+        }
+        this._wiper_position = val;
+        if(this.initialized){
+            if(this.wiper_position){
+                this.svg.find(".animate_wiper_close").each(function(index, element){element.beginElement()});
+            } else {
+                this.svg.find(".animate_wiper_open").each(function(index, element){element.beginElement()});
+            };
+        };
+        return true;
+      };
+
+      query_reveal(){
+        if(this.wiper_position == 0){
+          perform_action('reveal_spinner');
+        }
+      };
+
+      get pointer() {
+        return this._pointer_angle/1.6+50;
+      }
+      set pointer(val){
+        this.pointer_angle = -80+1.6*val; 
+      }
+
+      get pointer_angle(){
+        return this._pointer_angle;
+      }
+
+      set pointer_angle(val){
+        if(this.initialized){
+            var animation = this.svg.find("#animate_pointer_move");
+            animation.attr("values",this.pointer_angle+", 500, 500;"+val+", 500, 500");
+            animation[0].beginElement();
+        };
+        this._pointer_angle = val;
+      }
+
+      get spinner() {
+        return this._spinner_angle/1.6+50;
+      }
+      set spinner(val){
+        this.spinner_angle = -80+1.6*val; 
+      }
+
+      get spinner_angle(){
+        return this._spinner_angle;
+      }
+
+      set spinner_angle(val){
+        if(this.initialized){
+            var animation = this.svg.find("#animate_spinner_move");
+            animation.attr("values",this.spinner_angle+", 500, 500;"+val+", 500, 500");
+            animation[0].beginElement();
+        };
+        this._spinner_angle = val;
+      }
+
+    }
+    var wavelength_display = new WavelengthDisplay("#wavelength_spinner");
+    </script>
+</script>
+</head>
+<body>
+<div id="lobby">
+<h2> Lobby </h2>
+<ul>
+<li>
+<h2>
+Create Room:
+</h2>
+<form id="create_game_form" onsubmit="create_game(); return false;">
+<span id="create_game_warnings" class="warning"></span>
+<ul>
+<li>
+<label for="create_game_name">Player Name:</label> <input type="text" name="username" id="create_game_name"/>
+</li>
+<!--
+<li>
+<label for="end_condition">The game ends after: </label>
+<select id="end_condition" name="end_condition">
+<option value="end_score">A team scores</option>
+<option value="end_players">All players go</option>
+<option value="end_turns">A number of turns</option>
+</select>:
+<input id="end_condition_number" name="end_condition_number" type="number" min="1" value="10" oninput="validity.valid||(value='');"/>
+</li>
+<li>
+Catchup Rule: <input id="catchup_rule" name="catchup_rule" type="checkbox" checked/>
+</li>
+<li>
+Equal Turns: <input id="equal_turns" name="equal_turns" type="checkbox"/>
+</li>
+-->
+</ul>
+<input type="submit" value="Create Game"/>
+</form>
+</li>
+
+<li>
+<h2>
+Join Room:
+</h2>
+<span id="join_game_warnings" class="warning"></span>
+<form id="join_game_form" onsubmit="join_game(); return false;">
+<ul>
+<li>
+Name: <input type="text" name="username"/>
+</li>
+<li>
+Game ID: <input type="text" name="game_id"/>
+</li>
+<input type="submit" value="Join Game"/>
+</ul>
+</form>
+</li>
+</ul>
+</div   >
+<div id="game" class="inactive">
+  <object id="wavelength_spinner" width=100% style="max-width:1000px;" data="images/wavelength_box_trace_export.svg" type="image/svg+xml">
+    </object>
+<h2> Game ID:<span id="game_id"></span></h2>
+<h2> Players: </h2>
+<div id="player_list">
+</div>
+<div id="card">
+<div id="card_text_left" class="card_text"></div>
+<div id="card_text_right" class="card_text"></div>
+</div>
+</div>
+<div id="log_container" hidden>
+<h2> Log: </h2>
+<ul id="log">
+</ul>
+</div>
+</body>
+</html>

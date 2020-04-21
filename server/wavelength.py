@@ -1,0 +1,176 @@
+import asyncio
+import os
+
+from random import randint,sample
+
+import aiohttp.web
+
+import json
+
+HOST = os.getenv('HOST', '0.0.0.0')
+PORT = int(os.getenv('PORT', 8080))
+
+games = []
+
+async def testhandle(request):
+    return aiohttp.web.FileResponse("../client/index.html")
+
+async def websocket_handler(request):
+    print('Websocket connection starting')
+    ws = aiohttp.web.WebSocketResponse()
+    await ws.prepare(request)
+    print('Websocket connection ready')
+
+    async for msg in ws:
+        print(msg)
+        if msg.type == aiohttp.WSMsgType.TEXT:
+            try:
+               msg_json = json.loads(msg.data)
+            except json.decoder.JSONDecodeError:
+                await ws.send_str("Unable to parse:"+msg.data)
+            if 'action' in msg_json:
+                if msg_json['action'] in player_actions:
+                    success = await player_actions[msg_json['action']](ws,**msg_json.get('args',{}))
+                    await ws.send_str("Performed {}: code {}".format(msg_json['action'],success))
+                    if(not(success)):
+                        await ws.close()
+                else:
+                    await ws.send_str("Unable to find function {}".format(msg_json['action']))
+                
+
+    print('Websocket connection closed')
+    return ws
+
+
+# Functionality
+
+player_actions = {}
+def register_player_function(func):
+    player_actions[func.__name__] = func
+    return func
+
+@register_player_function
+async def create_game(ws,username,**kwargs):
+    game_id = len(games)
+    games.append({'players':{},
+                  'spinner_target':50,
+                  'flipped':0,
+                  'pointer':50,
+        })
+    print("Created Game {}".format(game_id))
+    
+    await join_game(ws,username,game_id)
+    
+    await draw_card(ws)
+    await spin_spinner(ws)
+    await point_pointer(ws, pointer_target=50)
+    
+    return True
+
+@register_player_function
+async def join_game(ws,username,game_id,**kwargs):
+    if(game_id >= len(games)):
+        return False
+    
+    game = games[game_id]
+    
+    if username in game['players']:
+        if not game['players'][username]['socket'].closed:
+            return False
+    else:
+        game['players'][username]={}
+
+    ws.username = username
+    ws.game_id = game_id
+       
+    game['players'][username]['socket'] = ws
+    
+    player_list = list(game['players'].keys())
+    msg = {'action':'player_change',
+           'performer':username,
+           'data':{'player_list':player_list,
+                    'game_id':game_id,
+                    'card':game.get('card',["A\tB"]),
+                    'flipped':game.get('flipped',0),
+                    'pointer':game['pointer']}}
+    asyncio.create_task(json_blast(game_id,msg))
+    
+    return True
+    
+@register_player_function
+async def spin_spinner(ws):
+    game_id = ws.game_id
+    spinner_target = randint(0,100)
+    games[game_id]['spinner_target'] = spinner_target
+    msg = {'action':'spin_spinner',
+           'performer':ws.username}
+    asyncio.create_task(json_blast(game_id,msg))
+    
+    private_msg = {'action':'spinner_secret',
+                'performer':ws.username,
+                'spinner_target':spinner_target,
+                }
+    asyncio.create_task(ws.send_str(json.dumps(private_msg)))
+    return True
+    
+@register_player_function
+async def reveal_spinner(ws):
+    game_id = ws.game_id
+    spinner_target = games[game_id]['spinner_target']
+    msg = {'action':'reveal_spinner',
+           'spinner_target':spinner_target,
+           'performer':ws.username}
+    asyncio.create_task(json_blast(game_id,msg))
+    return True
+    
+@register_player_function
+async def draw_card(ws):
+    game_id = ws.game_id
+    with open("data/english_cards.tsv") as f:
+        lines = f.readlines()
+    new_card = sample(lines,2)
+    games[game_id]['card'] = new_card
+    games[game_id]['flipped'] = 0
+    msg = {'action':'draw_card',
+           'card':new_card,
+           'performer':ws.username}
+    asyncio.create_task(json_blast(game_id,msg))
+    return True
+    
+@register_player_function
+async def flip_card(ws):
+    game_id = ws.game_id
+    new_side =1-games[game_id]['flipped']
+    msg = {'action':'flip_card',
+           'performer':ws.username,
+           'side':new_side}
+    games[game_id]['flipped']=new_side
+    asyncio.create_task(json_blast(game_id,msg))
+    return True
+    
+@register_player_function
+async def point_pointer(ws, pointer_target):
+    game_id = ws.game_id
+    games[game_id]['pointer'] = pointer_target
+    msg = {'action':'point_pointer',
+           'pointer_target':pointer_target,
+           'performer':ws.username}
+    asyncio.create_task(json_blast(game_id,msg))
+    return True
+
+async def json_blast(game_id,msg):
+    msg_str = json.dumps(msg)
+    print("Blasting message: {}".format(msg_str))
+    for player in games[game_id]['players'].values():
+        asyncio.create_task(player['socket'].send_str(msg_str))
+    return True
+
+loop = asyncio.get_event_loop()
+app = aiohttp.web.Application(loop=loop)
+app.router.add_route('GET', '/', testhandle)
+app.router.add_route('GET', '/ws', websocket_handler)
+
+
+if __name__ == '__main__':
+     app.router.add_static("/images","../client/images")
+     aiohttp.web.run_app(app, host=HOST, port=PORT)
