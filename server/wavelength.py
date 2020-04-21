@@ -1,5 +1,6 @@
 import asyncio
 import os
+import os.path
 
 from random import randint,sample
 
@@ -10,13 +11,15 @@ import json
 HOST = os.getenv('HOST', '0.0.0.0')
 PORT = int(os.getenv('PORT', 8080))
 
+here = os.path.dirname(__file__)
+
 game_max = 9999
 game_rotator = 1234
 games_started = 0
 games = {}
 
 async def index_page(request):
-    return aiohttp.web.FileResponse("../client/index.html")
+    return aiohttp.web.FileResponse(os.path.join(here,"../client/index.html"))
 
 async def websocket_handler(request):
     print('Websocket connection starting')
@@ -155,7 +158,7 @@ async def reveal_spinner(ws):
 @register_player_function
 async def draw_card(ws):
     game_id = ws.game_id
-    with open("data/english_cards.tsv") as f:
+    with open(os.path.join(here,"data/english_cards.tsv")) as f:
         lines = f.readlines()
     new_card = sample(lines,2)
     games[game_id]['card'] = new_card
@@ -227,12 +230,10 @@ async def send_json(ws,msg):
     asyncio.create_task(ws.send_str(msg_str))
 
 
-loop = asyncio.get_event_loop()
-app = aiohttp.web.Application(loop=loop)
+app = aiohttp.web.Application()
 app.router.add_route('GET', '/', index_page)
 app.router.add_route('GET', '/ws', websocket_handler)
-
+app.router.add_static("/images",os.path.join(here,"../client/images"))
 
 if __name__ == '__main__':
-     app.router.add_static("/images","../client/images")
      aiohttp.web.run_app(app, host=HOST, port=PORT)

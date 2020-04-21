@@ -1,0 +1,8 @@
+{
+  "name": "Wavelength Online",
+  "description": "A simple websockets-based Wavelength simulator",
+  "image": "heroku/python",
+  "repository": "https://github.com/ClintonWB/wavelength-online",
+  "keywords": ["python", "aiohttp" ],
+  "addons": [ "" ],
+}
