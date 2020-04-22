@@ -49,6 +49,7 @@
     
     game_data = {};
     idle_minutes = 15;
+    ping_delay = .5*60000;
     
     function ping_server(){
         if((typeof ws !== "undefined") && (ws.readyState === 1)){
@@ -62,7 +63,7 @@
             };
         };
     }
-    setInterval(ping_server, 60000);
+    setInterval(ping_server, ping_delay)
 
 
     
