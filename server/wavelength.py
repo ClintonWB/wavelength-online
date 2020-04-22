@@ -40,10 +40,14 @@ async def websocket_handler(request):
     async for msg in ws:
         print(msg)
         if msg.type == aiohttp.WSMsgType.TEXT:
+            if msg.data == "__ping__":
+                await ws.send_str("__pong__")
+                continue
             try:
                msg_json = json.loads(msg.data)
             except json.decoder.JSONDecodeError:
                 await ws.send_str("Unable to parse:"+msg.data)
+                continue
             if 'action' in msg_json:
                 if msg_json['action'] in player_actions:
                     success = await player_actions[msg_json['action']](ws,**msg_json.get('args',{}))

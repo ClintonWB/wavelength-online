@@ -48,6 +48,23 @@
         })(jQuery);
     
     game_data = {};
+    idle_minutes = 15;
+    
+    function ping_server(){
+        if((typeof ws !== "undefined") && (ws.readyState === 1)){
+            if(game_data.last_message_date !== undefined){
+                minutes = (new Date()-game_data.last_message_date)/60000;
+                if(minutes < idle_minutes){
+                    ws.send("__ping__");
+                } else {
+                    ws.close();
+                }
+            };
+        };
+    }
+    setInterval(ping_server, 60000);
+
+
     
     function update_card_text(){
         if(game_data.card === undefined){
@@ -60,6 +77,9 @@
     }
 
     function receive_message(event){
+        if(event.data === "__pong__"){
+            return true;
+        }
         try{
             json = JSON.parse(event.data)
         } catch(err){
@@ -67,6 +87,7 @@
             return true;
         }
         if(json.action !== undefined){
+            game_data.last_message_date = new Date();
             var $log_entry = $("<li>");
             $log_entry.html(json.performer+" Performs "+json.action); 
             $("#log").append($log_entry);
