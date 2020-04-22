@@ -73,7 +73,7 @@
   <path d="m500 162.35a337.64 337.64 0 0 0-337.64 337.64 337.64 337.64 0 0 0 337.64 337.64 337.64 337.64 0 0 0 337.64-337.64 337.64 337.64 0 0 0-337.64-337.64zm0 26.378c161.23-1e-4 296.03 123.52 310.09 284.14a17.965 17.965 0 0 1-35.793 3.1289c-0.56322-6.4347-1.4092-12.777-2.3994-19.068l-271.89 43.061-271.89-43.061c-0.99039 6.292-1.8503 12.633-2.4134 19.068a17.963 17.963 0 1 1-35.779-3.1289c14.052-160.62 148.85-284.14 310.09-284.14z"/>
   <rect x="297.74" y="729.85" width="406.56" height="135.68" ry="5.2184"/>
  </g>
- <g id="pointer_layer" fill="#e70000" style="cursor:grab">
+ <g id="pointer_layer" fill="#e70000" style="cursor:grab;touch-action: none">
   <circle cx="500" cy="500" r="65.24"/>
   <rect x="494.84" y="272.41" width="10.318" height="179.34" ry="5.5259"/>
  <animateTransform attributeName="transform" attributeType="XML" type="rotate" values="175 500 500; 5 500 500" keyTimes="0 ; 1" keySplines=".3642 0 .6358 1" dur="0.5s" repeatCount="1" begin="indefinite" calcMode="spline" fill="freeze" id="animate_pointer_move" class="animate_move"/><title>Move Pointer</title></g>

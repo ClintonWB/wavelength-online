@@ -294,10 +294,10 @@
         this.svg.find("#card_layer").on("click",function(){perform_action('flip_card')}.bind(this));
         this.svg.find(".scores").children().on("click",score_click_listener);
         this.svg.find("#direction_guess").children().on("click",side_guess_click_listener);
-        this.svg.find("#pointer_layer").on("mousedown",this.evt_pointer_click.bind(this));
-        this.svg.on("mouseup",this.evt_pointer_unclick.bind(this));
+        this.svg.find("#pointer_layer").on("mousedown touchstart",this.evt_pointer_click.bind(this));
+        this.svg.on("mouseup touchend touchcancel",this.evt_pointer_unclick.bind(this));
         this.svg.on("mouseleave",this.evt_pointer_unclick.bind(this));
-        this.svg.on("mousemove",this.evt_pointer_move.bind(this));
+        this.svg.on("mousemove touchmove",this.evt_pointer_move.bind(this));
       }
 
     spin_spinner(){
@@ -329,7 +329,14 @@
         var rect = this.svg[0].getClientRects()[0];
         var center_x = (500/this.svg.attr("width"))*rect.width+rect.x;
         var center_y = (500/this.svg.attr("height"))*rect.height+rect.y;
-        return Math.atan2(evt.clientX-center_x,-evt.clientY+center_y)/Math.PI*180;
+        if(evt.type === "touchmove"){
+            var client_x = evt.touches[evt.touches.length-1].clientX;
+            var client_y = evt.touches[evt.touches.length-1].clientY;
+        } else {
+            var client_x = evt.clientX;
+            var client_y = evt.clientY;
+        }
+        return Math.atan2(client_x-center_x,-client_y+center_y)/Math.PI*180;
       }
 
       evt_pointer_click(evt){
