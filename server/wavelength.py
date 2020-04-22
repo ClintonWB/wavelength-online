@@ -43,7 +43,8 @@ async def websocket_handler(request):
                 else:
                     await ws.send_str("Unable to find function {}".format(msg_json['action']))
                 
-    await leave_game(ws)
+    if(hasattr(ws,game_id)):
+        await leave_game(ws)
     print('Websocket connection closed')
     return ws
 

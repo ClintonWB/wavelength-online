@@ -122,6 +122,7 @@
         $("#game").removeClass("inactive");
         $("#lobby").addClass("inactive");
         $("#lobby").hide();
+        wavelength_display.initialize_svg();
     }
 
     function enter_lobby(event){
@@ -243,6 +244,9 @@
       };
 
       initialize_svg(){
+        if(this.initialized){
+            return true;
+        }
         this.initialized = true;
         this.svg = $($(this.selector)[0].getSVGDocument()).find("svg");
         
