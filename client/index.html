@@ -21,6 +21,10 @@
         word-break: break-word;
         cursor: pointer;
     }
+    footer{
+        font-size:small;
+        text-align:center;
+    }
 
     </style>
     <script type="text/javascript">
@@ -83,6 +87,7 @@
                     $("#player_list").append($(json.player_list).map(function(number,content){return $("<ul>"+content+"</ul>")[0]}));
                     break;
                 case "spin_spinner":
+                    wavelength_display.spin_spinner();
                     if(json.performer !== username){
                         wavelength_display.wiper_position = 1;
                     }
@@ -92,8 +97,8 @@
                 case "set_side":
                     wavelength_display.side = json.scores;
                     break;
-                case "reveal_spinner":
                 case "spinner_secret":
+                case "reveal_spinner":
                     wavelength_display.wiper_position = 0;
                     wavelength_display.spinner = json.spinner_target;
                     break;
@@ -261,7 +266,8 @@
         this.place_card_text();
         
         this.svg.find("#wiper_handle_layer").on("click",function(){this.swap_wiper();this.query_reveal()}.bind(this));
-        this.svg.find("#wheel_layer").on("click",function(){this.svg.find("#animate_wheel")[0].beginElement();perform_action('spin_spinner')}.bind(this));
+        this.svg.find("#wheel_layer").on("click",function(){
+                    this.spin_spinner();perform_action('spin_spinner')}.bind(this));
         this.svg.find("#deck_layer").on("click",function(){perform_action('draw_card')}.bind(this));
         this.svg.find("#card_layer").on("click",function(){perform_action('flip_card')}.bind(this));
         this.svg.find(".scores").children().on("click",score_click_listener);
@@ -271,6 +277,10 @@
         this.svg.on("mouseleave",this.evt_pointer_unclick.bind(this));
         this.svg.on("mousemove",this.evt_pointer_move.bind(this));
       }
+
+    spin_spinner(){
+        this.svg.find("#animate_wheel")[0].beginElement();
+    }
 
     place_card_text(){
         if(this.initialized){
@@ -495,5 +505,11 @@ Game ID: <input type="text" name="game_id"/>
 <ul id="log">
 </ul>
 </div>
+<footer>
+  <p> A fan implementation of <a href="https://www.wavelength.zone/">Wavelength</a></p>
+  <p> An excellent party game by Wolfgang Warsch, Alex Hague, and Justin Vickers.</p>
+  <p><a href="https://www.ultraboardgames.com/wavelength/game-rules.php">Rules</a></p>
+  <p>Implemented with permission by <a href="https://www.clintonbradford.com">Clinton Bradford</a></p>
+</footer>
 </body>
 </html>
