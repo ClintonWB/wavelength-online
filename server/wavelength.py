@@ -21,6 +21,16 @@ games = {}
 async def index_page(request):
     return aiohttp.web.FileResponse(os.path.join(here,"../client/index.html"))
 
+acme_challenge = {}
+acme_challenge_path = os.path.join("acme_challenge.txt")
+if os.path.isfile(acme_challenge_path):
+    with open(acme_challenge_path) as f: 
+        acme_challenge = {'path':f.readline().strip(),
+                          'challenge':f.readline().strip}
+async def acme_challenge(request):
+    
+    return aiohttp.web.Response(text=acme_challenge['challenge'])
+
 async def websocket_handler(request):
     print('Websocket connection starting')
     ws = aiohttp.web.WebSocketResponse()
@@ -234,6 +244,7 @@ async def send_json(ws,msg):
 app = aiohttp.web.Application()
 app.router.add_route('GET', '/', index_page)
 app.router.add_route('GET', '/ws', websocket_handler)
+app.router.add_static('/.well-known/acme-challenge/', os.path.join(here,"../client/acme_challenge"))
 app.router.add_static("/images",os.path.join(here,"../client/images"))
 
 if __name__ == '__main__':
