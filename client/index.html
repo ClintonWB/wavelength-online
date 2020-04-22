@@ -122,7 +122,6 @@
         $("#game").removeClass("inactive");
         $("#lobby").addClass("inactive");
         $("#lobby").hide();
-        wavelength_display.initialize_svg();
     }
 
     function enter_lobby(event){
@@ -239,10 +238,8 @@
         this._scores = [0,0];
         this._side = "left";
         this.initialized = false;
-        $(function(){
-            $(selector).on("load",this.initialize_svg.bind(this))}.bind(this));
-      };
-
+      }
+      
       initialize_svg(){
         if(this.initialized){
             return true;
@@ -481,7 +478,8 @@ Game ID: <input type="text" name="game_id"/>
 </ul>
 </div   >
 <div id="game" class="inactive">
-  <object id="wavelength_spinner" width=100% style="max-width:1000px;" data="images/wavelength_box_trace_export.svg" type="image/svg+xml">
+  <object id="wavelength_spinner" width=100% style="max-width:1000px;" onload="javascript:
+        wavelength_display.initialize_svg();" data="images/wavelength_box_trace_export.svg" type="image/svg+xml">
     </object>
 <h2> Game ID:<span id="game_id"></span></h2>
 <h2> Players: </h2>
